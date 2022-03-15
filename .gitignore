@@ -1,0 +1,6 @@
+*.iso
+*.bin
+*.o
+*.img
+OVMF.fd
+BOOTX64.EFI
