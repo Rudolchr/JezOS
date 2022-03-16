@@ -1,18 +1,33 @@
-.set MAGIC,		0xE85250D6
-.set ARCH,		0x0
-.set HEADER_LEN,	0x10
+#include "multiboot2.h"
+
+.set MAGIC,		MULTIBOOT2_HEADER_MAGIC # 0xE85250D6
+.set ARCH,		MULTIBOOT_ARCHITECTURE_I386 # 0x0
+.set HEADER_LEN,	multiboot_header_end - multiboot_header_start # 0x10
 .set CHECKSUM,		0x100000000 - (MAGIC + ARCH + HEADER_LEN)
 
 .section .multiboot
-.align 8
+multiboot_header_start:
+.align MULTIBOOT_HEADER_ALIGN
 .long MAGIC
 .long ARCH
 .long HEADER_LEN
 .long CHECKSUM
-.align 8
-.long 0x0
-.long 0x0
+
+framebuffer_tag_start:
+.align MULTIBOOT_TAG_ALIGN
+.short MULTIBOOT_HEADER_TAG_FRAMEBUFFER
+.short MULTIBOOT_HEADER_TAG_OPTIONAL
+.long framebuffer_tag_end - framebuffer_tag_start
+.long 1024
+.long 768
+.long 32
+framebuffer_tag_end:
+
+.align MULTIBOOT_TAG_ALIGN
+.short MULTIBOOT_HEADER_TAG_END
+.short 0x0
 .long 0x8
+multiboot_header_end:
 
 .section .bss
 .align 16
@@ -31,4 +46,4 @@ cli
 hlt
 jmp 1b
 
-.size _kerbel_start, . - _kernel_start
+.size _kernel_start, . - _kernel_start
