@@ -1,4 +1,4 @@
-#include "multiboot2.h"
+#include "boot/multiboot2.h"
 
 .set MAGIC,		MULTIBOOT2_HEADER_MAGIC # 0xE85250D6
 .set ARCH,		MULTIBOOT_ARCHITECTURE_I386 # 0x0
