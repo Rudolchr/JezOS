@@ -1,5 +1,7 @@
 #include "boot/multiboot2.h"
 
+.extern kernel_main
+
 .set MAGIC,		MULTIBOOT2_HEADER_MAGIC # 0xE85250D6
 .set ARCH,		MULTIBOOT_ARCHITECTURE_I386 # 0x0
 .set HEADER_LEN,	multiboot_header_end - multiboot_header_start # 0x10
@@ -40,7 +42,9 @@ stack_top:
 .type _kernel_start, @function
 
 _kernel_start:
-mov $stack_top, %esp
+mov $stack_top, %rsp
+mov %rbx, %rdi
+call kernel_main
 cli
 1:
 hlt
