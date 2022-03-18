@@ -15,25 +15,6 @@ multiboot_header_start:
 .long HEADER_LEN
 .long CHECKSUM
 
-#entry_tag_start:
-#.align MULTIBOOT_TAG_ALIGN
-#.short MULTIBOOT_HEADER_TAR_ADDRESS
-#.short MULTIBOOT_HEADER_TAG_OPTIONAL
-#.long entry_tag_end - entry_tag_start
-#.long multiboot_header_start
-#.long 0
-#.long 0
-#
-#entry_tag_end:
-#entry_addr_start:
-#.align MULTIBOOT_TAG_ALIGN
-#.short MULTIBOOT_HEADER_TAG_ENTRY_ADDRESS_EFI64
-#.short MULTIBOOT_HEADER_TAG_OPTIONAL
-#.long entry_addr_start - entry_addr_end
-#.long _kernel_start
-#
-#entry_addr_end:
-
 framebuffer_tag_start:
 .align MULTIBOOT_TAG_ALIGN
 .short MULTIBOOT_HEADER_TAG_FRAMEBUFFER
@@ -62,11 +43,34 @@ stack_top:
 
 _kernel_start:
 mov $stack_top, %rsp
+
+call test_cpuid
+cmp $0x0, %eax
+je no_cpuid
+
 mov %rbx, %rdi
 call kernel_main
 cli
-1:
+jmp block
+
+test_cpuid:
+pushf
+pushf
+xorl $1 << 21, (%rsp)
+popf
+pushf
+pop %rax
+xorl (%rsp), %eax
+popf
+andl $1 << 21, %eax
+ret
+
+no_cpuid:
+cli
+jmp block
+
+block:
 hlt
-jmp 1b
+jmp block
 
 .size _kernel_start, . - _kernel_start

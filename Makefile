@@ -6,7 +6,7 @@ TARGET_TRIPLE=-target x86_64-unknown-none
 COMMON_FLAGS=-c $(TARGET_TRIPLE) -ffreestanding -nostdlib -nostdinc -fno-builtin -mno-red-zone
 ASFLAGS=$(COMMON_FLAGS)
 CXXFLAGS= $(COMMON_FLAGS) -nostdinc++
-LDFLAGS=-static
+LDFLAGS=-static -m elf_x86_64
 
 BIN=bin
 SRC=src
