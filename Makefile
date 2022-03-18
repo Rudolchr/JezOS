@@ -25,7 +25,7 @@ BOOT_EFI=$(MACHINE)/bootloader/isodir_efi
 BOOT_BIOS=$(MACHINE)/bootloader/isodir_bios
 GRUB_BUILD=$(MACHINE)/bootloader/grub_build.cfg
 EFI_GRUB_CFG=$(BOOT_EFI)/boot/grub/grub.cfg
-OVMF=$(3RD_PARTY)/boot/bios/OVMF.fd
+OVMF=$(3RD_PARTY)/bios/OVMF.fd
 LINKER_SCRIPT=$(MACHINE)/linker.ld
 
 OVMF=$(3RD_PARTY)/bios/OVMF.fd
