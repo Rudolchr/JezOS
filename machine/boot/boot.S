@@ -15,6 +15,25 @@ multiboot_header_start:
 .long HEADER_LEN
 .long CHECKSUM
 
+#entry_tag_start:
+#.align MULTIBOOT_TAG_ALIGN
+#.short MULTIBOOT_HEADER_TAR_ADDRESS
+#.short MULTIBOOT_HEADER_TAG_OPTIONAL
+#.long entry_tag_end - entry_tag_start
+#.long multiboot_header_start
+#.long 0
+#.long 0
+#
+#entry_tag_end:
+#entry_addr_start:
+#.align MULTIBOOT_TAG_ALIGN
+#.short MULTIBOOT_HEADER_TAG_ENTRY_ADDRESS_EFI64
+#.short MULTIBOOT_HEADER_TAG_OPTIONAL
+#.long entry_addr_start - entry_addr_end
+#.long _kernel_start
+#
+#entry_addr_end:
+
 framebuffer_tag_start:
 .align MULTIBOOT_TAG_ALIGN
 .short MULTIBOOT_HEADER_TAG_FRAMEBUFFER

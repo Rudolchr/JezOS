@@ -25,7 +25,7 @@ BOOT_EFI=$(MACHINE)/bootloader/isodir_efi
 BOOT_BIOS=$(MACHINE)/bootloader/isodir_bios
 GRUB_BUILD=$(MACHINE)/bootloader/grub_build.cfg
 EFI_GRUB_CFG=$(BOOT_EFI)/boot/grub/grub.cfg
-OVMF=$(MACHINE)/boot/bios/OVMF.fd
+OVMF=$(3RD_PARTY)/boot/bios/OVMF.fd
 LINKER_SCRIPT=$(MACHINE)/linker.ld
 
 OVMF=$(3RD_PARTY)/bios/OVMF.fd
@@ -72,7 +72,7 @@ efi: build
 	mmd -i $(BIN)/$(TMP_IMG) ::/EFI/BOOT
 	mmd -i $(BIN)/$(TMP_IMG) ::/boot
 	mmd -i $(BIN)/$(TMP_IMG) ::/boot/grub
-	mcopy -i $(BIN)/$(TMP_IMG) $(BIN)/$(GRUB_EFI) ::/efi/boot
+	mcopy -i $(BIN)/$(TMP_IMG) $(BIN)/$(GRUB_EFI) ::/EFI/BOOT
 	mcopy -i $(BIN)/$(TMP_IMG) $(EFI_GRUB_CFG) ::/boot/grub
 	mcopy -i $(BIN)/$(TMP_IMG) $(BIN)/$(ELF_TARGET) ::/boot
 	dd if=$(BIN)/$(TMP_IMG) of=$(BIN)/$(IMG_TARGET) bs=512 count=91136 seek=2048 conv=notrunc
@@ -88,6 +88,7 @@ test:
 	echo $(SOURCES)
 	echo $(OBJECT_FILES)
 	echo $(INCLUDE_PATHS)
+	echo $(OVMF)
 
 build: $(OBJECT_FILES)
 	$(LD) $(LDFLAGS) -T $(LINKER_SCRIPT) -o $(BIN)/$(ELF_TARGET) $^
