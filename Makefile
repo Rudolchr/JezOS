@@ -49,7 +49,7 @@ OBJECT_FILES=$(patsubst %.cc, $(BIN)/%.o, $(patsubst %.S, $(BIN)/%.o, $(notdir $
 .PHONY: clean build debug-efi debug-bios efi bios efi-run bios-run
 
 bios: build
-	mv $(BIN)/$(ELF_TARGET) $(BOOT_BIOS)/boot/$(ELF_TARGET)
+	mv $(BIN)/$(ELF_TARGET) $(BOOT_BIOS)/$(ELF_TARGET)
 	grub-mkrescue -o $(BIN)/$(ISO_TARGET) $(BOOT_BIOS)
 
 bios-run: bios
@@ -57,12 +57,12 @@ bios-run: bios
 
 debug-bios: COMMON_FLAGS+=-ggdb3
 debug-bios: bios
-	qemu-system-x86_64 -cdrom $(BIN)/$(ISO_TARGET) -s & sleep 1 && gdb -x gdb.script $(BOOT_BIOS)/boot/$(ELF_TARGET)
+	qemu-system-x86_64 -cdrom $(BIN)/$(ISO_TARGET) -s & sleep 1 && gdb -x gdb.script $(BOOT_BIOS)/$(ELF_TARGET)
 
 efi: build
 	dd if=/dev/zero of=$(BIN)/$(IMG_TARGET) bs=512 count=102400
 	dd if=/dev/zero of=$(BIN)/$(TMP_IMG) bs=512 count=92160
-	cp $(BIN)/$(ELF_TARGET) $(BOOT_EFI)/boot/$(ELF_TARGET)
+	cp $(BIN)/$(ELF_TARGET) $(BOOT_EFI)/$(ELF_TARGET)
 	grub-mkstandalone -O x86_64-efi -o $(BIN)/$(GRUB_EFI) "boot/grub/grub.cfg=$(GRUB_BUILD)"
 	parted $(BIN)/$(IMG_TARGET) -s -a minimal mklabel gpt
 	parted $(BIN)/$(IMG_TARGET) -s -a minimal mkpart EFI fat32 2048s 100352s
@@ -70,11 +70,10 @@ efi: build
 	mformat -i $(BIN)/$(TMP_IMG) -h 32 -t 32 -n 80 -c 1 ::
 	mmd -i $(BIN)/$(TMP_IMG) ::/EFI
 	mmd -i $(BIN)/$(TMP_IMG) ::/EFI/BOOT
-	mmd -i $(BIN)/$(TMP_IMG) ::/boot
-	mmd -i $(BIN)/$(TMP_IMG) ::/boot/grub
+	mmd -i $(BIN)/$(TMP_IMG) ::/grub
 	mcopy -i $(BIN)/$(TMP_IMG) $(BIN)/$(GRUB_EFI) ::/EFI/BOOT
-	mcopy -i $(BIN)/$(TMP_IMG) $(EFI_GRUB_CFG) ::/boot/grub
-	mcopy -i $(BIN)/$(TMP_IMG) $(BIN)/$(ELF_TARGET) ::/boot
+	mcopy -i $(BIN)/$(TMP_IMG) $(EFI_GRUB_CFG) ::/grub
+	mcopy -i $(BIN)/$(TMP_IMG) $(BIN)/$(ELF_TARGET) ::/
 	dd if=$(BIN)/$(TMP_IMG) of=$(BIN)/$(IMG_TARGET) bs=512 count=91136 seek=2048 conv=notrunc
 
 efi-run: efi
@@ -82,7 +81,7 @@ efi-run: efi
 
 debug-efi: COMMON_FLAGS+=-ggdb3
 debug-efi: efi
-	qemu-system-x86_64 -pflash $(OVMF) $(BIN)/$(IMG_TARGET) -s -S & sleep 1 && gdb -x gdb.script $(BOOT_EFI)/boot/$(ELF_TARGET)
+	qemu-system-x86_64 -pflash $(OVMF) $(BIN)/$(IMG_TARGET) -s -S & sleep 1 && gdb -x gdb.script $(BOOT_EFI)/$(ELF_TARGET)
 
 test:
 	echo $(SOURCES)
@@ -101,4 +100,4 @@ $(BIN)/%.o: %.S
 
 clean:
 	rm -f bin/*
-	rm -f $(BOOT_BIOS)/boot/$(ELF_TARGET)
+	rm -f $(BOOT_BIOS)/$(ELF_TARGET) $(BOOT_EFI)/$(ELF_TARGET)
