@@ -49,7 +49,7 @@ OBJECT_FILES=$(patsubst %.cc, $(BIN)/%.o, $(patsubst %.S, $(BIN)/%.o, $(notdir $
 .PHONY: clean build debug-efi debug-bios efi bios efi-run bios-run
 
 bios: build
-	mv $(BIN)/$(ELF_TARGET) $(BOOT_BIOS)/$(ELF_TARGET)
+	mv $(BIN)/$(ELF_TARGET) $(BOOT_BIOS)/boot/$(ELF_TARGET)
 	grub-mkrescue -o $(BIN)/$(ISO_TARGET) $(BOOT_BIOS)
 
 bios-run: bios
@@ -57,7 +57,7 @@ bios-run: bios
 
 debug-bios: COMMON_FLAGS+=-ggdb3
 debug-bios: bios
-	qemu-system-x86_64 -cdrom $(BIN)/$(ISO_TARGET) -s & sleep 1 && gdb -x gdb.script $(BOOT_BIOS)/$(ELF_TARGET)
+	qemu-system-x86_64 -cdrom $(BIN)/$(ISO_TARGET) -s & sleep 1 && gdb -x gdb.script $(BOOT_BIOS)/boot/$(ELF_TARGET)
 
 efi: build
 	dd if=/dev/zero of=$(BIN)/$(IMG_TARGET) bs=512 count=102400
@@ -100,4 +100,4 @@ $(BIN)/%.o: %.S
 
 clean:
 	rm -f bin/*
-	rm -f $(BOOT_BIOS)/$(ELF_TARGET) $(BOOT_EFI)/$(ELF_TARGET)
+	rm -f $(BOOT_BIOS)/boot/$(ELF_TARGET) $(BOOT_EFI)/$(ELF_TARGET)
