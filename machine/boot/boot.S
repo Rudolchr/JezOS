@@ -46,12 +46,13 @@ mov $stack_top, %rsp
 
 call test_cpuid
 cmp $0x0, %eax
-je no_cpuid
+je system_halt
+
+call test_long_mode
 
 mov %rbx, %rdi
 call kernel_main
-cli
-jmp block
+jmp system_halt
 
 test_cpuid:
 pushf
@@ -65,7 +66,18 @@ popf
 andl $1 << 21, %eax
 ret
 
-no_cpuid:
+test_long_mode:
+mov $0x80000000, %eax
+cpuid
+cmp $0x80000001, %eax
+jb system_halt		# No Long Mode
+mov $0x80000001, %eax
+cpuid
+test $1 << 29, %edx
+jz system_halt		# also no long mode
+ret
+
+system_halt:
 cli
 jmp block
 
